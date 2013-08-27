@@ -154,7 +154,6 @@ Blank input
 !! result
 !! end
 
-
 !! test
 Simple paragraph
 !! input
@@ -9510,6 +9509,30 @@ parsoid
 #</span>
 #</p>
 
+###
+### Videos
+###
+
+!! test
+Inline video
+!! options
+parsoid
+!! input
+[[File:Foobar.mov]]
+!! result
+<p><span class="mw-default-size" typeof="mw:Video"><a href="File:Foobar.mov"><img resource="./File:Foobar.mov" src="//example.com/images/a/a3/Foobar.mov" height="480" width="640"></a></span>
+</p>
+!! end
+
+!! test
+Block video
+!! options
+parsoid
+!! input
+[[File:Foobar.mov|thumb]]
+!! result
+<figure class="mw-default-size" typeof="mw:Video/Thumb"><a href="File:Foobar.mov"><img resource="./File:Foobar.mov" src="//example.com/images/a/a3/Foobar.mov" height="135" width="180"></a></figure>
+!! end
 
 ###
 ### Subpages

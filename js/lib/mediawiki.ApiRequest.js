@@ -685,7 +685,8 @@ function ImageInfoRequest( env, filename, dims ) {
 		imgns = conf.namespaceNames[imgnsid],
 		props = [
 			'size',
-			'url'
+			'url',
+			'mediatype'
 		];
 
 	this.ns = imgns;

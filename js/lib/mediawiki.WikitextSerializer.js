@@ -1538,16 +1538,19 @@ WSP.handleImage = function ( node, state, cb ) {
 	currentOpt = {};
 	switch ( rel ) {
 		case 'mw:Image/Thumb':
+		case 'mw:Video/Thumb':
 			currentOpt.ck = 'thumbnail';
 			currentOpt.ak = mwAliases.img_thumbnail.last();
 			break;
 
 		case 'mw:Image/Frame':
+		case 'mw:Video/Frame':
 			currentOpt.ck = 'framed';
 			currentOpt.ak = mwAliases.img_framed.last();
 			break;
 
 		case 'mw:Image/Frameless':
+		case 'mw:Video/Frameless':
 			currentOpt.ck = 'frameless';
 			currentOpt.ak = mwAliases.img_frameless.last();
 			break;
@@ -1929,6 +1932,10 @@ WSP.genContentSpanTypes = {
 	'mw:Image/Frameless': 1,
 	'mw:Image/Frame': 1,
 	'mw:Image/Thumb': 1,
+	'mw:Video': 1,
+	'mw:Video/Frameless': 1,
+	'mw:Video/Frame': 1,
+	'mw:Video/Thumb': 1,
 	'mw:Entity': 1,
 	'mw:DiffMarker': 1
 };
@@ -2618,6 +2625,8 @@ WSP.tagHandlers = {
 					}
 					emitEndTag('</nowiki>', node, state, cb);
 				} else if ( type.match( /\bmw\:Image(\/(Frame|Frameless|Thumb))?/ ) ) {
+					state.serializer.handleImage( node, state, cb );
+				} else if ( type.match( /\bmw\:Video(\/(Frame|Frameless|Thumb))?/ ) ) {
 					state.serializer.handleImage( node, state, cb );
 				}
 			} else {

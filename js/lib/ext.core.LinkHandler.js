@@ -849,8 +849,7 @@ WikiLinkHandler.prototype.renderFile = function (token, frame, cb, target)
 			return;
 		}
 		var	dims, image, info, containerName, container, containerClose,
-			dataAttribs,
-			rdfaType = 'mw:Image',
+			dataAttribs, rdfaType,
 			iContainerName = hasImageLink ? 'a' : 'span',
 			ns = data.imgns,
 			innerContain = new TagTk( iContainerName, [] ),
@@ -973,6 +972,16 @@ WikiLinkHandler.prototype.renderFile = function (token, frame, cb, target)
 			if ( caption !== undefined ) {
 				caption = closeUnclosedBlockTags( caption );
 			}
+		}
+
+		// Determine rdfaType
+		switch ( info.mediatype ) {
+			case 'VIDEO':
+				rdfaType = 'mw:Video';
+				break;
+			default:
+				rdfaType = 'mw:Image';
+				break;
 		}
 
 		// If the format is something we *recognize*, add the subtype
