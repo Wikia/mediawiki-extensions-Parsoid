@@ -2624,9 +2624,7 @@ WSP.tagHandlers = {
 						}
 					}
 					emitEndTag('</nowiki>', node, state, cb);
-				} else if ( type.match( /\bmw\:Image(\/(Frame|Frameless|Thumb))?/ ) ) {
-					state.serializer.handleImage( node, state, cb );
-				} else if ( type.match( /\bmw\:Video(\/(Frame|Frameless|Thumb))?/ ) ) {
+				} else if ( type.match( /\bmw\:(Image|Video)(\/(Frame|Frameless|Thumb))?/ ) ) {
 					state.serializer.handleImage( node, state, cb );
 				}
 			} else {
