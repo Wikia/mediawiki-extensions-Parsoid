@@ -777,6 +777,69 @@ ImageInfoRequest.prototype._handleJSON = function ( error, data ) {
 	}
 };
 
+/**
+ * @class
+ * @extends ApiRequest
+ * @constructor
+ * @param {MWParserEnvironment} env
+ * @param {string} filename
+ */
+function PhotoAttributionRequest( env, filename ) {
+	ApiRequest.call( this, env, null );
+	this.env = env;
+
+	var conf = env.conf.wiki,
+		url = conf.apiURI + '?';
+
+	var apiArgs = {
+		action: 'apiphotoattribution',
+		format: 'json',
+		file: filename
+	};
+
+	url += qs.stringify( apiArgs );
+
+	this.requestOptions = {
+		method: 'GET',
+		followRedirect: true,
+		url: url,
+		timeout: 40 * 1000,
+		headers: {
+			'User-Agent': userAgent,
+			'Connection': 'close'
+		}
+	};
+
+	this.request( this.requestOptions, this._requestCB.bind( this ) );
+}
+
+util.inherits( PhotoAttributionRequest, ApiRequest );
+
+/**
+ * @inheritdoc ApiRequest#_handleJSON
+ */
+PhotoAttributionRequest.prototype._handleJSON = function ( error, data ) {
+	var pagenames, names, namelist, newpages, pages, pagelist, ix;
+
+	if ( error ) {
+		this._processListeners( error, { imgns: this.ns } );
+		return;
+	}
+
+	if ( data ) {
+		this._processListeners( null, data );
+	} else if ( data && data.error ) {
+		if ( data.error.code === 'readapidenied' ) {
+			error = new AccessDeniedError();
+		} else {
+			error = new Error( 'Something happened on the API side. Message: ' + data.error.code + ': ' + data.error.info );
+		}
+		this._processListeners( error, {} );
+	} else {
+		this._processListeners( null, {} );
+	}
+};
+
 if (typeof module === "object") {
 	module.exports.ConfigRequest = ConfigRequest;
 	module.exports.TemplateRequest = TemplateRequest;
@@ -784,6 +847,7 @@ if (typeof module === "object") {
 	module.exports.PHPParseRequest = PHPParseRequest;
 	module.exports.ParsoidCacheRequest = ParsoidCacheRequest;
 	module.exports.ImageInfoRequest = ImageInfoRequest;
+	module.exports.PhotoAttributionRequest = PhotoAttributionRequest;
 	module.exports.DoesNotExistError = DoesNotExistError;
 	module.exports.ParserError = ParserError;
 }
