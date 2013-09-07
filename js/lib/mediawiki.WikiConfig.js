@@ -396,7 +396,7 @@ WikiConfig.prototype.getMagicPatternMatcher = function ( optionsList ) {
 		if ( ix > 0 ) {
 			regexString += '|';
 		}
-		aliases = this._interpolatedMagicWordAliases[optionsList[ix]];
+		aliases = this._interpolatedMagicWordAliases[optionsList[ix]] || [];
 		regexString += aliases.join( '|' )
 			.replace( /((?:^|\|)(?:[^\$]|\$[^1])*)($|\|)/g, '$1$$1$2' )
 			.replace( /\$1/g, '(.*)' );

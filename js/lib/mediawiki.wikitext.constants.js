@@ -25,9 +25,7 @@ var WikitextConstants = {
 			'img_page'      : 'page',
 			'img_upright'   : 'upright',
 			'img_width'     : 'width',
-			// Wikia backwards compatibility fix #back-compat
-			// MW 1.19 doesn't support this magicword
-			//'img_class'     : 'class',
+			'img_class'     : 'class',
 			'img_manualthumb': 'manualthumb'
 		}),
 		/* filled in below, based on PrefixOptions */
