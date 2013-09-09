@@ -146,6 +146,12 @@ var fnames = {
 
 			response.query.pages['1'] = imageinfo;
 			cb( null, response );
+		},
+		apiphotoattribution: function ( body, cb ) {
+			cb( null, {
+				'username': 'Foo',
+				'avatar': 'Foo.png'
+			} );
 		}
 	},
 
