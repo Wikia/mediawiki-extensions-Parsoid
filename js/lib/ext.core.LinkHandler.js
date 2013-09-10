@@ -15,7 +15,8 @@ var PegTokenizer = require('./mediawiki.tokenizer.peg.js').PegTokenizer,
 	Sanitizer = sanitizerLib.Sanitizer,
 	SanitizerConstants = sanitizerLib.SanitizerConstants,
 	defines = require('./mediawiki.parser.defines.js'),
-	DU = require('./mediawiki.DOMUtils.js').DOMUtils;
+	DU = require('./mediawiki.DOMUtils.js').DOMUtils,
+	asyncLib = require('async');
 // define some constructor shortcuts
 var KV = defines.KV,
     TagTk = defines.TagTk,
@@ -842,14 +843,16 @@ WikiLinkHandler.prototype.renderFile = function (token, frame, cb, target)
 	}
 
 	// Handle a response to an imageinfo API request.
-	function handleResponse( linkTitle, err, data ) {
-		if (err || !data) {
+	function handleResponse( linkTitle, err, results ) {
+		if (err || !results) {
 			// FIXME gwicke: Handle this error!!
 			cb ({tokens: [new SelfclosingTagTk('meta',
 						[new KV('typeof', 'mw:Placeholder')], token.dataAttribs)]});
 			return;
 		}
-		var	dims, image, info, containerName, container, containerClose,
+		var	data = results[0][0],
+			attribution = results[1][0],
+			dims, image, info, containerName, container, containerClose,
 			dataAttribs, rdfaType,
 			iContainerName = hasImageLink ? 'a' : 'span',
 			ns = data.imgns,
@@ -1021,10 +1024,10 @@ WikiLinkHandler.prototype.renderFile = function (token, frame, cb, target)
 				innerContainClose
 			];
 
+		var dataMw = {};
+
 		if ( caption !== undefined  && !useFigure ) {
-			container.addAttribute( 'data-mw', JSON.stringify( {
-				caption: captionSrc
-			} ) );
+			dataMw.caption = captionSrc;
 		} else if ( caption !== undefined ) {
 			tokens = tokens.concat( [
 				new TagTk( 'figcaption' ),
@@ -1033,24 +1036,12 @@ WikiLinkHandler.prototype.renderFile = function (token, frame, cb, target)
 			] );
 		}
 
-		var attributionRequest = new PhotoAttributionRequest( env, filename );
-		attributionRequest.on( 'src', function( error, data ) {
+		dataMw.attribution = attribution;
 
-			var jsonObj = {};
-			if ( container.getAttribute( 'data-mw' ) ) {
-				jsonObj = JSON.parse( container.getAttribute( 'data-mw' ) );
-			}
-			jsonObj.attribution = {
-				'username': data.username,
-				'avatar': data.avatar
-			};
-			container.addAttribute( 'data-mw', JSON.stringify( jsonObj ) );
-			
-			tokens.push( containerClose );
+		container.addAttribute( 'data-mw', JSON.stringify( dataMw ) );
 
-			cb( { tokens: tokens } );
-
-		} );
+		tokens.push( containerClose );
+		cb( { tokens: tokens } );
 	}
 
 	// First check if we have a cached copy of this image expansion, and
@@ -1236,10 +1227,14 @@ WikiLinkHandler.prototype.renderFile = function (token, frame, cb, target)
 			constraints.width = 180;
 		}
 	}
+	var imageInfoRequest = new ImageInfoRequest( env, filename, constraints ),
+		photoAttributionRequest = new PhotoAttributionRequest( env, filename );
 
-	var infoRequest = new ImageInfoRequest( env, filename, constraints );
+	asyncLib.parallel( [
+		imageInfoRequest.once.bind( imageInfoRequest, 'src' ),
+		photoAttributionRequest.once.bind( photoAttributionRequest, 'src' )
+	],  handleResponse.bind( null, linkTitle ) );
 
-	infoRequest.on( 'src', handleResponse.bind( null, linkTitle ) );
 	cb( { async: true } );
 };
 
