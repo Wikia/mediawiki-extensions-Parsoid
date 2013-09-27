@@ -27,6 +27,10 @@ function ExtensionHandler(manager, options) {
 		"references": references.handleReferences.bind(references, manager, options)
 	};
 
+	if ( manager.env.conf.parsoid.useNativeGallery ) {
+		this.nativeExtHandlers.gallery = nativeExts.gallery.handleGallery.bind(nativeExts.gallery, manager, options);
+	}
+
 	// Extension content expansion
 	manager.addTransform( this.onExtension.bind(this), "ExtensionHandler:onExtension",
 			this.rank, 'tag', 'extension' );

@@ -3186,8 +3186,27 @@ WSP._buildExtensionWT = function(state, node, dataMW) {
 		srcParts.push(attrStr);
 	}
 
-	// Serialize body
-	if (!dataMW.body) {
+	if ( state.env.conf.parsoid.useNativeGallery && extName === 'gallery' ) {
+		srcParts.push(">");
+		var results = [], i, wts, wt, dp;
+		for ( var i = 0; i < node.childNodes.length; i++ ) {
+			wts = new WikitextSerializer({
+				env: state.env,
+				extName: extName
+			});
+			wt = wts.serializeDOM(node.childNodes[i]);
+			if(node.childNodes[i].getAttribute('typeof') === 'mw:Image/Thumb') {
+				wt = wt.substr(2,wt.length-15);
+				dp = JSON.parse(node.childNodes[i].getAttribute('data-parsoid'));
+				if(!dp.hasNamespace) {
+					wt = wt.substr(6);
+				}
+			}
+			results.push(wt);
+		}
+		srcParts.push(results.join("\n"));
+		srcParts = srcParts.concat(["</", extName, ">"]);
+	} else if (!dataMW.body) {
 		srcParts.push(" />");
 	} else {
 		srcParts.push(">");
