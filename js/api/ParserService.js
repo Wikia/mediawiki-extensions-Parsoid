@@ -687,7 +687,7 @@ function wt2html( req, res, wt ) {
 }
 
 // pattern for all routes that do not begin with _
-var patternForApiUriOrPrefix = '^[^\/?_](.+)/(.*)';
+var patternForApiUriOrPrefix = '^[/_](.*)/(.*)';
 // Regular article parsing
 app.get( new RegExp( patternForApiUriOrPrefix ), interParams, parserEnvMw, function(req, res) {
 	var env = res.locals.env;
