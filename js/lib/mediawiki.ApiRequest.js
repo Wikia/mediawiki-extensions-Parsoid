@@ -82,6 +82,13 @@ ApiRequest.prototype.request = function( options, callback ) {
 	// this is a good place to put debugging statements
 	// if you want to watch network requests.
 	//console.log('ApiRequest', options);
+	
+	// Syncval for internal wiki
+	if ( this.env.conf.parsoid.syncval && options.url.indexOf( 'api.php' ) > -1 ) {
+		options.syncval = this.env.conf.parsoid.syncval;
+		options.strictSSL = false;
+	}
+
 	return request( options, callback );
 };
 
