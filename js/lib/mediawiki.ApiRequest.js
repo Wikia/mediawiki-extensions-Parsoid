@@ -9,7 +9,8 @@ var request = require('request'),
 	$ = require( './fakejquery' ),
 	qs = require('querystring'),
 	events = require('events'),
-	util = require('util');
+	util = require('util'),
+	url = require('url');
 
 // all revision properties which parsoid is interested in.
 var PARSOID_RVPROP = ('content|ids|timestamp|user|userid|size|sha1|'+
@@ -79,13 +80,18 @@ function ApiRequest ( env, title ) {
 util.inherits(ApiRequest, events.EventEmitter);
 
 ApiRequest.prototype.request = function( options, callback ) {
+	var parsedUrl;
 	// this is a good place to put debugging statements
 	// if you want to watch network requests.
 	//console.log('ApiRequest', options);
 	
 	// Syncval for internal wiki
-	if ( this.env.conf.parsoid.syncval && options.url.indexOf( this.env.conf.parsoid.apiURI ) > -1 ) {
-		options.url += '&syncval=' + this.env.conf.parsoid.syncval;
+	if ( this.env.conf.parsoid.syncval && options.url.indexOf( this.env.conf.parsoid.apiURI ) === 0 ) {
+		parsedUrl = url.parse( options.url, true );
+		parsedUrl.query.syncval = this.env.conf.parsoid.syncval;
+		// if set, search will override query during url serialization
+		parsedUrl.search = null;
+		options.url = url.format( parsedUrl );
 		options.strictSSL = false;
 	}
 
