@@ -89,8 +89,8 @@ ApiRequest.prototype.request = function( options, callback ) {
 	if ( this.env.conf.parsoid.syncval && options.url.indexOf( this.env.conf.parsoid.apiURI ) === 0 ) {
 		parsedUrl = url.parse( options.url, true );
 		parsedUrl.query.syncval = this.env.conf.parsoid.syncval;
-		// if set, search will override query during url serialization
-		parsedUrl.search = null;
+		// "query will only be used if search is absent." - http://nodejs.org/docs/latest/api/url.html
+		delete parsedUrl.search;
 		options.url = url.format( parsedUrl );
 		options.strictSSL = false;
 	}
