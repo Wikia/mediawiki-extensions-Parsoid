@@ -21,7 +21,9 @@ if (cluster.isMaster) {
 			var exitCode = worker.process.exitCode;
 			console.log('worker', worker.process.pid,
 				'died ('+exitCode+'), restarting.');
-			cluster.fork();
+			setTimeout(function() {
+				cluster.fork();
+			}, 5000);
 		}
 	});
 
