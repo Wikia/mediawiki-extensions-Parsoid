@@ -24,7 +24,7 @@ var KV = defines.KV,
     SelfclosingTagTk = defines.SelfclosingTagTk,
     EndTagTk = defines.EndTagTk,
 	ImageInfoRequest = require( './mediawiki.ApiRequest.js' ).ImageInfoRequest,
-	PhotoAttributionRequest = require( './mediawiki.ApiRequest.js' ).PhotoAttributionRequest;
+	ImageAttributionRequest = require( './mediawiki.ApiRequest.js' ).ImageAttributionRequest;
 
 function WikiLinkHandler( manager, options ) {
 	this.manager = manager;
@@ -1185,11 +1185,11 @@ WikiLinkHandler.prototype.renderFile = function (token, frame, cb, target)
 		}
 	}
 	var imageInfoRequest = new ImageInfoRequest( env, filename, constraints ),
-		photoAttributionRequest = new PhotoAttributionRequest( env, filename );
+		imageAttributionRequest = new ImageAttributionRequest( env, filename );
 
 	asyncLib.parallel( [
 		imageInfoRequest.once.bind( imageInfoRequest, 'src' ),
-		photoAttributionRequest.once.bind( photoAttributionRequest, 'src' )
+		imageAttributionRequest.once.bind( imageAttributionRequest, 'src' )
 	],  handleResponse.bind( null, linkTitle ) );
 
 	/*
